@@ -92,9 +92,21 @@ public class CustomerController {
 	@GetMapping(value="/findall")
 	public ResponseEntity<?> getAllCustomer () {
 		
-		List<Customer> custList = customerService.getAllCustomers();
+		try {
+			
+			List<Customer> custList = customerService.getAllCustomers();
+			
+			return ResponseEntity.ok().body(custList);
+			
+		}
 		
-		return ResponseEntity.ok().body(custList);
+		catch(Exception e){
+			
+			return ResponseEntity.internalServerError().body("no customers found");
+			
+		}
+		
+		
 		
 	}
 	
@@ -119,17 +131,38 @@ public class CustomerController {
 	@GetMapping("/findallwithpage")
 	public ResponseEntity<?> getAllCustomerWithPagination(@RequestParam("pagesize") Integer pageNumber, @RequestParam("pageno") Integer pageSize) {
 		
-		List<Customer> customerList = customerService.getAllCustomerWithPagination(pageNumber, pageSize);
+		try {
+			List<Customer> customerList = customerService.getAllCustomerWithPagination(pageNumber, pageSize);
+			
+			return ResponseEntity.ok().body(customerList);
+		}
 		
-		return ResponseEntity.ok().body(customerList);
+		catch(Exception e) {
+			
+			return ResponseEntity.internalServerError().body("no customers found");
+			
+		}
+		
+		
 		
 	}
 	
 	@DeleteMapping(value="/delete/{customerid}")
 	public ResponseEntity<?> deleteCustomerById(@PathVariable("customerid") Long customerId) {
 		
-		customerService.deleteCustomerById(customerId);
-		return ResponseEntity.ok().body("The customer with the customer id" + customerId + "is deleted");
+		try {
+			
+			customerService.deleteCustomerById(customerId);
+			return ResponseEntity.ok().body("The customer with the customer Id " + customerId + " is deleted successfully!");
+			
+		}
+		
+		catch(Exception e) {
+			
+			return ResponseEntity.internalServerError().body("The customer with the customer id" + customerId + "can't be found");
+			
+		}
+		
 
 		
 	}
@@ -137,26 +170,54 @@ public class CustomerController {
 	@GetMapping(value="/findbyemail")
 	public ResponseEntity<?> getCustomerWithEmail(@RequestParam("email") String email) {
 		
-		Customer customer = customerService.getCustomerWithEmail(email);
-		return ResponseEntity.ok().body(customer);
+		try {
+			
+			Customer customer = customerService.getCustomerWithEmail(email);
+			return ResponseEntity.ok().body(customer);
+			
+		}
+		catch(Exception e){
+			
+			return ResponseEntity.internalServerError().body("can't find customer associated with that email");
+			
+		}
+		
+		
 	}
 	
+	
 	@PutMapping(value="/update/{customerid}")
-	public Customer updateCustomer(@PathVariable("customerid") Long customerId, @RequestBody CustomerRequest newCustomerRequest) {
+	public ResponseEntity<?> updateCustomer(@PathVariable("customerid") Long customerId, @RequestBody CustomerRequest newCustomerRequest) {
 		
+		try {
+			
+			Customer updatedCustomer =  customerService.updateCustomer(customerId, newCustomerRequest);
+			
+			return ResponseEntity.ok().body(updatedCustomer);
+		}
 		
-		Customer updatedCustomer =  customerService.updateCustomer(customerId, newCustomerRequest);
+		catch(Exception e){
 		
-		return updatedCustomer;
+			return ResponseEntity.internalServerError().body("customer not found");
+		}
 		
-		
+	
 	}
 	
 	@GetMapping(value="count")
 	public ResponseEntity<?> countCustomers() {
+		try {
+			
+			Long totalCustomer = customerService.countCustomers();
+			return ResponseEntity.ok().body("total number of customers" + totalCustomer);
+		}
 		
-		Long totalCustomer = customerService.countCustomers();
-		return ResponseEntity.ok().body("total number of customers" + totalCustomer);
+		catch(Exception e) {
+			
+			return ResponseEntity.internalServerError().body("no customers found");
+			
+		}
+		
 		
 	}
 }

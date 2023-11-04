@@ -92,9 +92,20 @@ public class ProductController {
 	@GetMapping(value="/findall")
 	public ResponseEntity<?> getAllProduct () {
 		
-		List<Product> custList = productService.getAllProducts();
+		try {
+			
+			List<Product> custList = productService.getAllProducts();
+			
+			return ResponseEntity.ok().body(custList);
+			
+		}
+		catch(Exception e){
+			
+			return ResponseEntity.internalServerError().body("no product exists"); 
+			
+		}
 		
-		return ResponseEntity.ok().body(custList);
+		
 		
 	}
 	
@@ -119,17 +130,39 @@ public class ProductController {
 	@GetMapping("/findallwithpage")
 	public ResponseEntity<?> getAllProductWithPagination(@RequestParam("pagesize") Integer pageNumber, @RequestParam("pageno") Integer pageSize) {
 		
-		List<Product> productList = productService.getAllProductWithPagination(pageNumber, pageSize);
+		try {
+			
+			List<Product> productList = productService.getAllProductWithPagination(pageNumber, pageSize);
+			
+			return ResponseEntity.ok().body(productList);
+		}
 		
-		return ResponseEntity.ok().body(productList);
+		catch(Exception e) {
+			
+			return ResponseEntity.internalServerError().body("no product exists");
+			
+		}
+		
+		
 		
 	}
 	
 	@DeleteMapping(value="/delete/{productid}")
 	public ResponseEntity<?> deleteProductById(@PathVariable("productid") Long productId) {
 		
-		productService.deleteProductById(productId);
-		return ResponseEntity.ok().body("The product with the product id" + productId + "is deleted");
+		try {
+			
+			productService.deleteProductById(productId);
+			return ResponseEntity.ok().body("The product with the product id" + productId + "is deleted");
+			
+		}
+		
+		catch(Exception e) {
+			
+			return ResponseEntity.internalServerError().body("The product with the product id" + productId + "can't be found");
+			
+		}
+		
 
 		
 	}
@@ -137,17 +170,39 @@ public class ProductController {
 	@GetMapping(value="/findbyemail")
 	public ResponseEntity<?> getProductWithEmail(@RequestParam("email") String email) {
 		
-		Product product = productService.getProductWithEmail(email);
-		return ResponseEntity.ok().body(product);
+		try {
+		
+			Product product = productService.getProductWithEmail(email);
+			return ResponseEntity.ok().body(product);
+			
+		}
+		
+		catch(Exception e) {
+			
+			return ResponseEntity.internalServerError().body("can't find product associated with the email");
+			
+		}
+		
+		
 	}
 	
 	@PutMapping(value="/update/{productid}")
-	public Product updateProduct(@PathVariable("productid") Long productId, @RequestBody ProductRequest newProductRequest) {
+	public ResponseEntity<?> updateProduct(@PathVariable("productid") Long productId, @RequestBody ProductRequest newProductRequest) {
 		
+		try {
+			
+			Product updatedProduct =  productService.updateProduct(productId, newProductRequest);
+			
+			return ResponseEntity.ok().body(updatedProduct);
+			
+		}
 		
-		Product updatedProduct =  productService.updateProduct(productId, newProductRequest);
-		
-		return updatedProduct;
+		catch(Exception e) {
+			
+			return ResponseEntity.internalServerError().body("can't find a product with that Id");
+			
+		}
+	
 		
 		
 	}
@@ -155,8 +210,19 @@ public class ProductController {
 	@GetMapping(value="count")
 	public ResponseEntity<?> countProducts() {
 		
-		Long totalProduct = productService.countProducts();
-		return ResponseEntity.ok().body("total number of products" + totalProduct);
+		try {
+			
+			Long totalProduct = productService.countProducts();
+			return ResponseEntity.ok().body("total number of products" + totalProduct);
+			
+		}
+		
+		catch(Exception e) {
+			
+			return ResponseEntity.internalServerError().body("no products exist");
+		}
+		
+		
 		
 	}
 }

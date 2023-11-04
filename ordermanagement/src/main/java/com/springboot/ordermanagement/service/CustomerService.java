@@ -3,6 +3,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.management.RuntimeErrorException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,20 +30,16 @@ public class CustomerService {
 		
 		//take all the request fields from customerRequest and set it in customer model object
 		//save customer model object in database and return it
-		
+		logger.info("saveCustomer method");
 		Customer customer = new Customer ();
-		
 		customer.setCustomerName(customerRequest.getCustomerName());
 		customer.setEmail(customerRequest.getEmail());
 		customer.setMobile(customerRequest.getMobile());
 		customer.setPassword(customerRequest.getPassword());
 		customer.setAddress(customerRequest.getAddress());
 		
-		customerDao.save(customer);
+		customer = customerDao.save(customer);
 		logger.info("saved successfully");
-		
-		
-		
 		if(customer == null) {
 			
 			logger.info("customer not saved exception occured");
@@ -49,7 +47,6 @@ public class CustomerService {
 		}
 		
 		
-			
 		return customer;
 		
 	}
@@ -74,14 +71,20 @@ public class CustomerService {
 	public List<Customer> getAllCustomers() {
 		
 		List<Customer> customerList = customerDao.findAll();
-		return customerList;
 		
+		if(customerList.isEmpty()) {
+			
+			throw new RuntimeException();
+			
+		}
+		
+		return customerList;
 		
 	}
 	
 	public List<Customer> getAllCustomerWithPagination(Integer pageNumber, Integer pageSize) {
 		
-		Page<Customer> pageCustomer = customerDao.findAll(PageRequest.of(pageNumber, pageSize, Sort.by("CustomerName").ascending()));
+		Page<Customer> pageCustomer = customerDao.findAll(PageRequest.of(pageNumber, pageSize, Sort.by("CustomerName").descending()));
 		
 		//we need to convert page to list of customers and return list as 
 		List<Customer> customerList = new ArrayList<>();
@@ -89,6 +92,13 @@ public class CustomerService {
 		for(Customer cust: pageCustomer){
 			customerList.add(cust);
 		}
+		
+		if(customerList.isEmpty()) {
+			
+			throw new RuntimeException();
+		}
+			
+		
 		return customerList;
 	}
 	
@@ -101,6 +111,11 @@ public class CustomerService {
 	public Customer getCustomerWithEmail(String email) {
 		
 		Customer customer = customerDao.findCustomerByEmail(email);
+		
+		if(customer == null) {
+			throw new RuntimeException();
+		}
+		
 		return customer;
 		
 	}
@@ -122,21 +137,39 @@ public class CustomerService {
 			
 			updatedCustomer = customerDao.save(oldCustomer);
 			
-	
-			
+			if(updatedCustomer == null) {
+				
+				throw new RuntimeException();
+				
+			}
 		}
+		
+		else {
+
+			throw new RuntimeException("Customer not found");
+
+		}
+			
 		
 		return updatedCustomer;
 		
+	
 	}
 
 	public Long countCustomers() {
+		
 		// TODO Auto-generated method stub
 		Long totalCustomer = customerDao.count();
+		if(totalCustomer == 0) {
+			
+			throw new RuntimeException();
+			
+		}
 		
 		return totalCustomer;
 	}
 	
 }
+
 
 
