@@ -92,9 +92,19 @@ public class OrderController {
 	@GetMapping(value="/findall")
 	public ResponseEntity<?> getAllOrder () {
 		
-		List<Order> custList = orderService.getAllOrders();
+		try {
+			
+			List<Order> custList = orderService.getAllOrders();
+			
+			return ResponseEntity.ok().body(custList);
+			
+		}
 		
-		return ResponseEntity.ok().body(custList);
+		catch(Exception e){
+			
+			return ResponseEntity.internalServerError().body("no order exists");
+			
+		}
 		
 	}
 	
@@ -119,9 +129,20 @@ public class OrderController {
 	@GetMapping("/findallwithpage")
 	public ResponseEntity<?> getAllOrderWithPagination(@RequestParam("pagesize") Integer pageNumber, @RequestParam("pageno") Integer pageSize) {
 		
-		List<Order> orderList = orderService.getAllOrderWithPagination(pageNumber, pageSize);
+		try {
+			
+			List<Order> orderList = orderService.getAllOrderWithPagination(pageNumber, pageSize);
+			
+			return ResponseEntity.ok().body(orderList);
+		}
 		
-		return ResponseEntity.ok().body(orderList);
+		catch (Exception e){
+			
+			return ResponseEntity.internalServerError().body("no order exists");
+			
+		}
+		
+		
 		
 	}
 	
@@ -137,28 +158,59 @@ public class OrderController {
 	@GetMapping(value="/findbyemail")
 	public ResponseEntity<?> getOrderWithEmail(@RequestParam("email") String email) {
 		
-		Order order = orderService.getOrderWithEmail(email);
-		return ResponseEntity.ok().body(order);
+		try {
+			
+			Order order = orderService.getOrderWithEmail(email);
+			return ResponseEntity.ok().body(order);
+			
+		}
+		catch(Exception e) {
+			
+			return ResponseEntity.internalServerError().body("can't find order associated with that email");
+			
+		}
+		
 	}
 	
 	@PutMapping(value="/update/{orderid}")
-	public Order updateOrder(@PathVariable("orderid") Long orderId, @RequestBody OrderRequest newOrderRequest) {
+	public ResponseEntity<?> updateOrder(@PathVariable("orderid") Long orderId, @RequestBody OrderRequest newOrderRequest) {
 		
+		try {
+			
+			Order updatedOrder =  orderService.updateOrder(orderId, newOrderRequest);
+			
+			return ResponseEntity.ok().body(updatedOrder);
+		}
 		
-		Order updatedOrder =  orderService.updateOrder(orderId, newOrderRequest);
-		
-		return updatedOrder;
-		
-		
+		catch(Exception e) {
+			
+			return ResponseEntity.internalServerError().body("can't find an order with that Id");
+		}
+			
 	}
 	
 	@GetMapping(value="count")
 	public ResponseEntity<?> countOrders() {
 		
-		Long totalOrder = orderService.countOrders();
-		return ResponseEntity.ok().body("total number of orders" + totalOrder);
+		try {
+			
+			Long totalOrder = orderService.countOrders();
+			return ResponseEntity.ok().body("total number of orders" + totalOrder);
+			
+		}
+		
+		catch(Exception e){
+			
+			return ResponseEntity.internalServerError().body("no order exists");
+			
+		}
+	
 		
 	}
+	
+	
+	
+	
 }
 
 

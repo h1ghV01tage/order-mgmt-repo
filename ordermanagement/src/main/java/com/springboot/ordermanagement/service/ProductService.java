@@ -3,6 +3,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.management.RuntimeErrorException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +39,7 @@ public class ProductService {
 		product.setProductQuantity(productRequest.getProductQuantity());
 		product.setDescription(productRequest.getDescription());
 		
-		productDao.save(product);
+		product = productDao.save(product);
 		logger.info("saved successfully");
 		
 		if(product == null) {
@@ -71,7 +73,13 @@ public class ProductService {
 	
 	public List<Product> getAllProducts() {
 		
+		
 		List<Product> productList = productDao.findAll();
+		if(productList.isEmpty()) {
+			
+			throw new RuntimeException("no products exist");
+		}
+		
 		return productList;
 		
 		
@@ -79,7 +87,7 @@ public class ProductService {
 	
 	public List<Product> getAllProductWithPagination(Integer pageNumber, Integer pageSize) {
 		
-		Page<Product> pageProduct = productDao.findAll(PageRequest.of(pageNumber, pageSize, Sort.by("ProductName").ascending()));
+		Page<Product> pageProduct = productDao.findAll(PageRequest.of(pageNumber, pageSize, Sort.by("ProductName").descending()));
 		
 		//we need to convert page to list of products and return list as 
 		List<Product> productList = new ArrayList<>();
@@ -99,6 +107,12 @@ public class ProductService {
 	public Product getProductWithEmail(String email) {
 		
 		Product product = productDao.findProductByEmail(email);
+		
+		if(product == null) {
+			
+			throw new RuntimeException("no product associated with that email");
+		}
+		
 		return product;
 		
 	}
@@ -119,7 +133,17 @@ public class ProductService {
 			
 			updatedProduct = productDao.save(oldProduct);
 			
-	
+			if(updatedProduct  == null) {
+				
+				throw new RuntimeException("Failed to update product");
+			}
+			
+			
+		}
+		
+		else {
+			
+			throw new RuntimeException("Product not found");
 			
 		}
 		
@@ -129,9 +153,17 @@ public class ProductService {
 
 	public Long countProducts() {
 		// TODO Auto-generated method stub
-		Long totalProduct = productDao.count();
 		
-		return totalProduct;
+			
+			Long totalProduct = productDao.count();
+			if(totalProduct == 0) {
+				
+				throw new RuntimeException("No products exist");
+				
+			}
+			
+			return totalProduct;
+		
 	}
 	
 }

@@ -96,7 +96,7 @@ public class OrderService {
 		order.setTotalPrice(String.valueOf(totalPrice));
 		
 
-		orderDao.save(order);
+		order = orderDao.save(order);
 		logger.info("saved successfully");
 		
 		if(order == null) {
@@ -105,9 +105,7 @@ public class OrderService {
 			throw new RuntimeException("order not saved");
 			
 		}
-		
-		
-			
+	
 		return order;
 		
 	}

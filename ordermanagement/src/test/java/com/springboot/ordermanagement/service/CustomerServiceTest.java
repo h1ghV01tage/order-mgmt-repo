@@ -177,7 +177,7 @@ public class CustomerServiceTest {
 	@Test
 	public void getCustomerWithEmailTestNegative() {
 		
-		Mockito.when(customerDao.findCustomerByEmail(Mockito.any())).thenReturn(getCustomer());
+		Mockito.when(customerDao.findCustomerByEmail(Mockito.any())).thenReturn(null);
 		assertThrows(RuntimeException.class, () -> customerService.getCustomerWithEmail(Mockito.any()));
 		
 	}

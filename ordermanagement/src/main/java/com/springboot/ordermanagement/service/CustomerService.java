@@ -95,7 +95,7 @@ public class CustomerService {
 		
 		if(customerList.isEmpty()) {
 			
-			throw new RuntimeException();
+			throw new RuntimeException("no customer in database");
 		}
 			
 		
